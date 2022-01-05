@@ -1,0 +1,22 @@
+<nav search_view="search">
+  <view name="insider_threat_overview" default='true'/>
+  <a href="incident_review?source=Identity%20-%20Insider%20Threat%20Risk%20Threshold%20Breached%20-%20Rule">Incident Review</a>
+  <collection label="Investigations">
+    <view name="user_metrics"/>
+    <view name="investigation_workflow_home"/>
+  </collection>
+  <view name="manual_risk_modification"/>
+  <collection label="Audit and Review">
+    <view name="risk_modification_review"/>
+  </collection>
+  <collection label="Configuration">
+    <view name="current_thresholds_and_modifiers"/>
+  </collection>
+  <collection label="Splunk">
+  <view name="search"/>
+  <view name="datasets" />
+  <view name="reports" />
+  <view name="alerts" />
+  <view name="dashboards" />
+  </collection>
+</nav>

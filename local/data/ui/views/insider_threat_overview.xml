@@ -1,0 +1,94 @@
+<dashboard>
+  <label>Insider Threat - Overview</label>
+  <row>
+    <panel>
+      <html>
+        <h2>Overview</h2>
+        <p>This is a prototype of how insider threat may look.  It is created and provided without warranty.</p>
+        <h3>How does the app work?</h3>
+        <p>Saved searches run periodically looking for the indicators (the smarties), if a search finds one for a particular user, it logs it with the risk score defined for that use case at that time.</p>
+        <p>There are 2 background saved searches that also run, 1 reduces a users risk score slowly over time if no more risk modifiers have been associated with that user.  The second looks at the total risk score for the users over a 7 day period and creates an alert in incident review if a user has breached a determined threshold.</p>
+        <p>The users should then be able to develop a workflow to allow them to work through and record information against a notable.</p>
+        <p>information about historic risk modifications and notables should be easily accessible through the users journey.</p>
+        <p>If the threshold for alerting is too low or high, the risk reduction modifier too generous or the weighting for a particular indicator creates too much noise then these will all be tunable.  Hopefully allowing noisy indicators to affect scores less, while rarer indicators that have been proven in the past to be more suspicious can be given higher weighting.</p>
+        <strong>There are currently only 2 saved searches generating indicators in this demo, your solution may have many more...</strong>
+        <h3>Tell me about this page</h3>
+        <p>This Dashboard is to help with parity, it shows the top 10 users with highest risk scores, risk scores are based on a rolling 7 day period atm.</p>
+        <p>You can click on a user and you will be taken to the User Metrics Dashboard from the column chart.</p>
+        <p>The bottom table can show current notables, ie users that have breached the thresholds and have a ticket associated with them.  Clicking one of the rows takes you to the incident review page showing only incidents for that user so that you can assign it/comment/investigate easier.</p>
+      </html>
+    </panel>
+    <panel>
+      <html><a href="https://github.com/Insider-Threat/Insider-Threat">https://github.com/Insider-Threat/Insider-Threat</a></html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Score by User (Highest 10)</title>
+      <chart>
+        <search>
+          <query>index=it_risk | chart sum(risk_score) AS risk_score by identity | appendcols [|inputlookup notable_trigger_threshold ] | eventstats values(notable_trigger_threshold) AS notable_trigger_threshold | rename notable_trigger_threshold AS "Notable Creation Threshold"| sort - risk_score | head 10</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">"Notable Creation Threshold"</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_blank">/app/DA-InsiderThreat/user_metrics?form.identity=$row.identity$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>
+            <![CDATA[`notable`| search search_name="Identity - Insider Threat Risk Threshold Breached - Rule" | rex "risk_score=\"(?<it_risk_score>\d+)\""| stats values(status_group) AS status_group by it_risk_score,user,_time| table _time,status_group,user,it_risk_score | rename status_group AS "Current Ticket Status",it_risk_score AS "Risk Score",user AS User| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found",User="-","Risk Score"="-"| fields - count]]]>
+          </query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">true</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_blank">/app/DA-InsiderThreat/incident_review?search=user%3D$row.User$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</dashboard>

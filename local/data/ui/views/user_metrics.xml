@@ -1,0 +1,125 @@
+<form>
+  <label>User Metrics</label>
+  <search id="base_search1">
+    <query>index=it_risk identity="$identity$" |  eval savedsearch_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,savedsearch_name)|stats count by savedsearch_name,risk_score,_time</query>
+    <earliest>-7d@h</earliest>
+    <latest>now</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="identity" searchWhenChanged="true">
+      <label>Identity</label>
+      <fieldForLabel>identity</fieldForLabel>
+      <fieldForValue>identity</fieldForValue>
+      <search>
+        <query>index=it_risk | stats values(identity) AS identity | mvexpand identity</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <h2>Tell me about this page</h2>
+        <p>This dashboard may form part of your investigation, it shows the current insider threat score, open notables and recent risk modification actions on the first row.</p>
+        <p>The timechart on the second row is to see how a users risk score has been modified in the last 7 days and the horizontal line represents the current score.</p>
+        <p><strong>[Bug]</strong> Eventually you will be able to click on the user in the notable table and pivot to the incident review screen to see notables from the past year, i started, but haven't finished this yet and it is leaving the URL encoded = sign rather than swapping it...</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <viz type="horseshoe_meter_app.horseshoe_meter">
+        <title>Current User Risk Score</title>
+        <search base="base_search1">
+          <query> | stats sum(risk_score) AS "Current Score"</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.backgroundColor">#FFF</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.dialColor">#d0d5d9</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.maxRangeColor">#b44441</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.maxRangeThreshold">100</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.maxValue">100</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.midRangeColor">#fbcd2f</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.midRangeThreshold">10</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.minRangeColor">#3fc77a</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.minValue">0</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.thresholdStyle">realValue</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.useRangemap">true</option>
+        <option name="horseshoe_meter_app.horseshoe_meter.valueColor">#555</option>
+      </viz>
+    </panel>
+    <panel>
+      <title>Notables Generated in the Last year</title>
+      <table>
+        <search>
+          <query>`notable`| search search_name="Identity - Insider Threat Risk Threshold Breached - Rule" user="$identity$"| rex "risk_score=\"(?&lt;it_risk_score&gt;\d+)\""| stats values(status_group) AS status_group by it_risk_score,_time| table _time,status_group,it_risk_score | rename status_group AS "Current Ticket Status",it_risk_score AS "Risk Score"| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found","Risk Score"="-"| fields - count]</query>
+          <earliest>-365d@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_blank">/app/DA-InsiderThreat/incident_review?source=Identity%20-%20Insider%20Threat%20Risk%20Threshold%20Breached%20-%20Rule&amp;search=user%253Ddarrend&amp;earliest=-365d&amp;latest=now</link>
+        </drilldown>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <search base="base_search1">
+          <query> |sort -_time | table_time,savedsearch_name,risk_score</query>
+        </search>
+        <option name="dataOverlayMode">heatmap</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Scoring over Last 7 Days</title>
+      <chart>
+        <search base="base_search1">
+          <query>| replace * with tmp_* IN savedsearch_name |timechart span=1d sum(risk_score) by savedsearch_name|addtotals label=score tmp_* |rename tmp_* AS * |eventstats sum(Total) AS Total</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">Total</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,51 @@
+<form>
+  <label>Manual Risk Modification</label>
+  <fieldset submitButton="true">
+    <input type="dropdown" token="identity">
+      <label>User</label>
+      <fieldForLabel>identity</fieldForLabel>
+      <fieldForValue>identity</fieldForValue>
+      <search>
+        <query>index=it_risk | stats values(identity) AS identity | mvexpand identity</query>
+      </search>
+    </input>
+    <input type="text" token="reason">
+      <label>Reason</label>
+    </input>
+    <input type="text" token="risk_score">
+      <label>Risk Modification</label>
+      <default>0</default>
+      <initialValue>0</initialValue>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <h2>Tell me about this page</h2>
+        <p>At various points you may want to manually adjust a users risk score, this form allows you to submit amendments, these will then be stored and instantly applied to a user, this could be that you reduce the risk score because of a false positive, or increase it because of a request.</p>
+        <p>It records the user that presses submit with the amendment for audit purposes.</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Modification Results</title>
+      <table>
+        <search>
+          <query>| stats count | eval identity="$identity$",risk_score="$risk_score$",reason="$reason$",_time=now(),modification_user="$env:user$" | fields - count| collect index=it_risk source="Manual Risk Score Modification"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
