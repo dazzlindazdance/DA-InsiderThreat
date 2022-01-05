@@ -1,6 +1,6 @@
 []
 access = read : [ * ], write : [ admin, power ]
-export = none
+export = system
 
 [tags]
 export = system
