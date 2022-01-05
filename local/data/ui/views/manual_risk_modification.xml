@@ -1,12 +1,12 @@
 <form>
   <label>Manual Risk Modification</label>
   <fieldset submitButton="true">
-    <input type="dropdown" token="identity">
+    <input type="dropdown" token="risk_object">
       <label>User</label>
-      <fieldForLabel>identity</fieldForLabel>
-      <fieldForValue>identity</fieldForValue>
+      <fieldForLabel>risk_object</fieldForLabel>
+      <fieldForValue>risk_object</fieldForValue>
       <search>
-        <query>index=it_risk | stats values(identity) AS identity | mvexpand identity</query>
+        <query>index=it_risk | stats values(risk_object) AS risk_object | mvexpand risk_object</query>
       </search>
     </input>
     <input type="text" token="reason">
@@ -32,7 +32,7 @@
       <title>Modification Results</title>
       <table>
         <search>
-          <query>| stats count | eval identity="$identity$",risk_score="$risk_score$",reason="$reason$",_time=now(),modification_user="$env:user$" | fields - count| collect index=it_risk source="Manual Risk Score Modification"</query>
+          <query>| stats count | eval risk_object="$risk_object$",risk_score="$risk_score$",reason="$reason$",_time=now(),modification_user="$env:user$" | fields - count| collect index=it_risk source="Manual Risk Score Modification"</query>
           <earliest>-60m@m</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>

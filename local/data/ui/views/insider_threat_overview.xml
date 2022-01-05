@@ -1,33 +1,16 @@
 <dashboard>
   <label>Insider Threat - Overview</label>
   <row>
-    <panel>
-      <html>
-        <h2>Overview</h2>
-        <p>This is a prototype of how insider threat may look.  It is created and provided without warranty.</p>
-        <h3>How does the app work?</h3>
-        <p>Saved searches run periodically looking for the indicators (the smarties), if a search finds one for a particular user, it logs it with the risk score defined for that use case at that time.</p>
-        <p>There are 2 background saved searches that also run, 1 reduces a users risk score slowly over time if no more risk modifiers have been associated with that user.  The second looks at the total risk score for the users over a 7 day period and creates an alert in incident review if a user has breached a determined threshold.</p>
-        <p>The users should then be able to develop a workflow to allow them to work through and record information against a notable.</p>
-        <p>information about historic risk modifications and notables should be easily accessible through the users journey.</p>
-        <p>If the threshold for alerting is too low or high, the risk reduction modifier too generous or the weighting for a particular indicator creates too much noise then these will all be tunable.  Hopefully allowing noisy indicators to affect scores less, while rarer indicators that have been proven in the past to be more suspicious can be given higher weighting.</p>
-        <strong>There are currently only 2 saved searches generating indicators in this demo, your solution may have many more...</strong>
-        <h3>Tell me about this page</h3>
-        <p>This Dashboard is to help with parity, it shows the top 10 users with highest risk scores, risk scores are based on a rolling 7 day period atm.</p>
-        <p>You can click on a user and you will be taken to the User Metrics Dashboard from the column chart.</p>
-        <p>The bottom table can show current notables, ie users that have breached the thresholds and have a ticket associated with them.  Clicking one of the rows takes you to the incident review page showing only incidents for that user so that you can assign it/comment/investigate easier.</p>
-      </html>
-    </panel>
-    <panel>
-      <html><a href="https://github.com/Insider-Threat/Insider-Threat">https://github.com/Insider-Threat/Insider-Threat</a></html>
-    </panel>
+    <panel><title>New Insider Notables (TO DO)</title><single><search><query>|stats count</query></search></single></panel>
+    <panel><title>In Progress Insider Notables (TO DO)</title><single><search><query>|stats count</query></search></single></panel>
+    <panel><title>Closed Insider Notables (TO DO)</title><single><search><query>|stats count</query></search></single></panel>
   </row>
   <row>
     <panel>
       <title>Risk Score by User (Highest 10)</title>
       <chart>
         <search>
-          <query>index=it_risk | chart sum(risk_score) AS risk_score by identity | appendcols [|inputlookup notable_trigger_threshold ] | eventstats values(notable_trigger_threshold) AS notable_trigger_threshold | rename notable_trigger_threshold AS "Notable Creation Threshold"| sort - risk_score | head 10</query>
+          <query>index=it_risk | chart sum(risk_score) AS risk_score by risk_object | appendcols [|inputlookup notable_trigger_threshold ] | eventstats values(notable_trigger_threshold) AS notable_trigger_threshold | rename notable_trigger_threshold AS "Notable Creation Threshold"| sort - risk_score | head 10</query>
           <earliest>-7d@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -61,6 +44,8 @@
         <option name="charting.legend.mode">standard</option>
         <option name="charting.legend.placement">none</option>
         <option name="charting.lineWidth">2</option>
+        <option name="height">531</option>
+        <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>

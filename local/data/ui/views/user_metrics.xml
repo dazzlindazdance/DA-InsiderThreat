@@ -1,33 +1,23 @@
 <form>
   <label>User Metrics</label>
   <search id="base_search1">
-    <query>index=it_risk identity="$identity$" |  eval savedsearch_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,savedsearch_name)|stats count by savedsearch_name,risk_score,_time</query>
+    <query>index=it_risk risk_object="$risk_object$" |  eval search_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,search_name)|stats count by search_name,risk_score,_time|addinfo</query>
     <earliest>-7d@h</earliest>
     <latest>now</latest>
     <sampleRatio>1</sampleRatio>
   </search>
   <fieldset submitButton="false">
-    <input type="dropdown" token="identity" searchWhenChanged="true">
+    <input type="dropdown" token="risk_object" searchWhenChanged="true">
       <label>Identity</label>
-      <fieldForLabel>identity</fieldForLabel>
-      <fieldForValue>identity</fieldForValue>
+      <fieldForLabel>risk_object</fieldForLabel>
+      <fieldForValue>risk_object</fieldForValue>
       <search>
-        <query>index=it_risk | stats values(identity) AS identity | mvexpand identity</query>
+        <query>index=it_risk | stats values(risk_object) AS risk_object | mvexpand risk_object</query>
         <earliest>0</earliest>
         <latest></latest>
       </search>
     </input>
   </fieldset>
-  <row>
-    <panel>
-      <html>
-        <h2>Tell me about this page</h2>
-        <p>This dashboard may form part of your investigation, it shows the current insider threat score, open notables and recent risk modification actions on the first row.</p>
-        <p>The timechart on the second row is to see how a users risk score has been modified in the last 7 days and the horizontal line represents the current score.</p>
-        <p><strong>[Bug]</strong> Eventually you will be able to click on the user in the notable table and pivot to the incident review screen to see notables from the past year, i started, but haven't finished this yet and it is leaving the URL encoded = sign rather than swapping it...</p>
-      </html>
-    </panel>
-  </row>
   <row>
     <panel>
       <viz type="horseshoe_meter_app.horseshoe_meter">
@@ -52,32 +42,36 @@
     </panel>
     <panel>
       <title>Notables Generated in the Last year</title>
-      <table>
+      <chart>
         <search>
-          <query>`notable`| search search_name="Identity - Insider Threat Risk Threshold Breached - Rule" user="$identity$"| rex "risk_score=\"(?&lt;it_risk_score&gt;\d+)\""| stats values(status_group) AS status_group by it_risk_score,_time| table _time,status_group,it_risk_score | rename status_group AS "Current Ticket Status",it_risk_score AS "Risk Score"| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found","Risk Score"="-"| fields - count]</query>
+          <query>`notable`| search search_name="Identity - Insider Threat Risk Threshold Breached - Rule" risk_object="$risk_object$"| rex "risk_score=\"(?&lt;it_risk_score&gt;\d+)\""| stats values(status_group) AS status_group by risk_score,_time| table _time,status_group,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score"|xyseries _time,"Current Ticket Status","Risk Score"| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found","Risk Score"="-"| fields - count]</query>
           <earliest>-365d@d</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="count">20</option>
-        <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
-        <option name="percentagesRow">false</option>
-        <option name="rowNumbers">false</option>
-        <option name="totalsRow">false</option>
-        <option name="wrap">true</option>
+        <option name="charting.chart">column</option>
+        <option name="refresh.display">progressbar</option>
         <drilldown>
-          <link target="_blank">/app/DA-InsiderThreat/incident_review?source=Identity%20-%20Insider%20Threat%20Risk%20Threshold%20Breached%20-%20Rule&amp;search=user%253Ddarrend&amp;earliest=-365d&amp;latest=now</link>
+          <link target="_blank">/app/DA-InsiderThreat/incident_review?source=Identity%20-%20Insider%20Threat%20Risk%20Threshold%20Breached%20-%20Rule&amp;search=user%253D$risk_object$&amp;earliest=-365d&amp;latest=now</link>
         </drilldown>
-      </table>
+      </chart>
     </panel>
+  </row>
+  <row>
     <panel>
-      <table>
+      <viz type="timeline_app.timeline">
         <search base="base_search1">
-          <query> |sort -_time | table_time,savedsearch_name,risk_score</query>
+          <query>| sort -_time |eval duration=60,severity="high"| table _time,search_name,severity,duration | makecontinuous span=1h | fillnull value=" " search_name|fillnull value="null" severity| appendpipe [|stats count | where count=0 | addinfo | rename info_min_time AS _time |table _time,search_name,severity,duration]</query>
         </search>
-        <option name="dataOverlayMode">heatmap</option>
-      </table>
+        <option name="refresh.display">progressbar</option>
+        <option name="timeline_app.timeline.axisTimeFormat">DAYS</option>
+        <option name="timeline_app.timeline.colorMode">categorical</option>
+        <option name="timeline_app.timeline.maxColor">#DA5C5C</option>
+        <option name="timeline_app.timeline.minColor">#FFE8E8</option>
+        <option name="timeline_app.timeline.numOfBins">6</option>
+        <option name="timeline_app.timeline.tooltipTimeFormat">MINUTES</option>
+        <option name="timeline_app.timeline.useColors">1</option>
+      </viz>
     </panel>
   </row>
   <row>
@@ -85,7 +79,7 @@
       <title>Risk Scoring over Last 7 Days</title>
       <chart>
         <search base="base_search1">
-          <query>| replace * with tmp_* IN savedsearch_name |timechart span=1d sum(risk_score) by savedsearch_name|addtotals label=score tmp_* |rename tmp_* AS * |eventstats sum(Total) AS Total</query>
+          <query>| replace * with tmp_* IN search_name |timechart span=1d sum(risk_score) by search_name|addtotals label=score tmp_* |rename tmp_* AS * |eventstats sum(Total) AS Total</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
@@ -116,6 +110,7 @@
         <option name="charting.legend.mode">standard</option>
         <option name="charting.legend.placement">none</option>
         <option name="charting.lineWidth">2</option>
+        <option name="refresh.display">progressbar</option>
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
