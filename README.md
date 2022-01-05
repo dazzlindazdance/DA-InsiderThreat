@@ -17,5 +17,31 @@ There is a new index required for Insider Risk Events called `it_risk`
 - [Horseshoe Meter - Custom Visualization](https://splunkbase.splunk.com/app/3166/)
 - [Splunk Timeline - Custom Visualization](https://splunkbase.splunk.com/app/3120/)
 
-## Installation Instructions
+### Content Required
+Insider Threat is all about your users, as a result we need to know certain information about them.  The ES Asset and Identity Framework is a perfect place to store this information, it should be regularly updated.
+This information is also useful when performing investigations as will give access to key information without having to pivot to another system.
+Information on the Enterprise Security Asset and Identity Framework can be found here: [Asset and Identity framework in Splunk ES](https://dev.splunk.com/enterprise/docs/devtools/enterprisesecurity/assetandidentityframework/)
+#### Identity Fields
+The useful fields for Insider Threat.
+##### identity
+This is a pipe delimited field containing the usernames associated with an individual.  It is useful when trying to tie the actions of the different personas of a user back to the individual.  
+##### first
+
+##### last
+
+##### category
+
+##### watchlist
+
+##### startDate
+
+##### endDate
+
+### Installation
 TBD
+
+## Configuration
+TBD
+#### Access restriction
+You may want to restrict users outside the Insider Threat team from accessing the `it_risk` index so that they can't see if they themselves are being investigated.
+### Lookups to Manage
