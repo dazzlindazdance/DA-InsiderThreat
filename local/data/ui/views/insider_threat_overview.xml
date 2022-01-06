@@ -1,9 +1,30 @@
 <dashboard>
-  <label>Insider Threat - Overview</label>
+  <label>Overview</label>
   <row>
-    <panel><title>New Insider Notables (TO DO)</title><single><search><query>|stats count</query></search></single></panel>
-    <panel><title>In Progress Insider Notables (TO DO)</title><single><search><query>|stats count</query></search></single></panel>
-    <panel><title>Closed Insider Notables (TO DO)</title><single><search><query>|stats count</query></search></single></panel>
+    <panel>
+      <title>New Insider Notables (TO DO)</title>
+      <single>
+        <search>
+          <query>|stats count</query>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>In Progress Insider Notables (TO DO)</title>
+      <single>
+        <search>
+          <query>|stats count</query>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>Closed Insider Notables (TO DO)</title>
+      <single>
+        <search>
+          <query>|stats count</query>
+        </search>
+      </single>
+    </panel>
   </row>
   <row>
     <panel>
