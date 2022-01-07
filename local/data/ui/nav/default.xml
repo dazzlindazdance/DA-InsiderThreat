@@ -1,6 +1,6 @@
 <nav search_view="search">
   <view name="insider_threat_overview" default='true'/>
-  <a href="incident_review?source=Identity%20-%20Insider%20Threat%20Risk%20Threshold%20Breached%20-%20Rule">Incident Review</a>
+  <a href="incident_review?domain=insider">Incident Review</a>
   <collection label="Investigations">
     <view name="user_metrics"/>
     <view name="investigation_workflow_home"/>
