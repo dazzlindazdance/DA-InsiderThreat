@@ -40,11 +40,12 @@
         <option name="horseshoe_meter_app.horseshoe_meter.valueColor">#555</option>
       </viz>
     </panel>
+    <panel><table><search><query>|`identities`| search identity=$risk_object$ | table identity,first,last,nick,email,phone,priority,watchlist,startDate,endDate,bunit,managedBy</query></search></table></panel>
     <panel>
       <title>Notables Generated in the Last year</title>
       <chart>
         <search>
-          <query>`notable`| search search_name="Identity - Insider Threat Risk Threshold Breached - Rule" risk_object="$risk_object$"| rex "risk_score=\"(?&lt;it_risk_score&gt;\d+)\""| stats values(status_group) AS status_group by risk_score,_time| table _time,status_group,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score"|xyseries _time,"Current Ticket Status","Risk Score"| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found","Risk Score"="-"| fields - count]</query>
+          <query>`notable`| search security_domain="insider" risk_object="$risk_object$"| rex "risk_score=\"(?&lt;it_risk_score&gt;\d+)\""| stats values(status_group) AS status_group by risk_score,_time| table _time,status_group,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score"|xyseries _time,"Current Ticket Status","Risk Score"| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found","Risk Score"="-"| fields - count]</query>
           <earliest>-365d@d</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>

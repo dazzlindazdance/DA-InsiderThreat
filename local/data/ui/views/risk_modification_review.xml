@@ -13,7 +13,7 @@
       <title>Rule Firings Over Last 7 days (Count)</title>
       <chart>
         <search>
-          <query>index=it_risk savedsearch_name=* risk_score&gt;0|timechart span=1d limit=0 count by savedsearch_name</query>
+          <query>index=it_risk search_name=* risk_score&gt;0|timechart span=1d limit=0 count by search_name</query>
           <earliest>-7d@h</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>

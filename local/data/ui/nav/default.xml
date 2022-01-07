@@ -3,7 +3,6 @@
   <a href="incident_review?domain=insider">Incident Review</a>
   <collection label="Investigations">
     <view name="user_metrics"/>
-    <view name="investigation_workflow_home"/>
   </collection>
   <view name="manual_risk_modification"/>
   <collection label="Audit and Review">

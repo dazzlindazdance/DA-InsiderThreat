@@ -1,27 +1,29 @@
 <dashboard>
   <label>Overview</label>
+  <search id="insider_notable_statuses"><earliest>-7d@h</earliest>
+          <latest>now</latest><query>`notable`| search security_domain=insider | stats count by status_label</query></search>
   <row>
     <panel>
-      <title>New Insider Notables (TO DO)</title>
+      <title>New Insider Notables</title>
       <single>
-        <search>
-          <query>|stats count</query>
+        <search base="insider_notable_statuses">
+          <query>where status_label="New"|fields count</query>
         </search>
       </single>
     </panel>
     <panel>
-      <title>In Progress Insider Notables (TO DO)</title>
+      <title>In Progress Insider Notables</title>
       <single>
-        <search>
-          <query>|stats count</query>
+        <search base="insider_notable_statuses">
+          <query>where status_label="In Progress"|fields count</query>
         </search>
       </single>
     </panel>
     <panel>
-      <title>Closed Insider Notables (TO DO)</title>
+      <title>Closed Insider Notables</title>
       <single>
-        <search>
-          <query>|stats count</query>
+        <search base="insider_notable_statuses">
+          <query>where status_label="Closed"|fields count</query>
         </search>
       </single>
     </panel>
@@ -81,7 +83,7 @@
       <table>
         <search>
           <query>
-            <![CDATA[`notable`| search search_name="Identity - Insider Threat Risk Threshold Breached - Rule" | rex "risk_score=\"(?<it_risk_score>\d+)\""| stats values(status_group) AS status_group by it_risk_score,user,_time| table _time,status_group,user,it_risk_score | rename status_group AS "Current Ticket Status",it_risk_score AS "Risk Score",user AS User| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found",User="-","Risk Score"="-"| fields - count]]]>
+            <![CDATA[`notable`| search security_domain="insider" | stats values(status_group) AS status_group by risk_score,user,_time| table _time,status_group,user,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score",user AS User| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found",User="-","Risk Score"="-"| fields - count]]]>
           </query>
           <earliest>-24h</earliest>
           <latest>now</latest>
