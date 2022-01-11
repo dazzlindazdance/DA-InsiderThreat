@@ -3,21 +3,21 @@
         <label class="control-label" for="risk_score">Risk Score</label>
 
         <div class="controls">
-            <input type="text" class="input-xlarge" name="action.risk.param._risk_score" id="risk_score" placeholder="i.e. 0-100" />
+            <input type="text" class="input-xlarge" name="action.risk.param._insider_risk_score" id="risk_score" placeholder="i.e. 0-100" />
         </div>
     </div>
     <div class="control-group">
         <label class="control-label" for="risk_object">Risk Object Field</label>
 
         <div class="controls">
-            <input type="text" class="input-xlarge" name="action.risk.param._risk_object" id="risk_object" placeholder="i.e. dest" />
+            <input type="text" class="input-xlarge" name="action.risk.param._insider_risk_object" id="risk_object" placeholder="i.e. dest" />
         </div>
     </div>
     <div class="control-group">
         <label class="control-label" for="risk_object_type">Risk Object Type</label>
         
         <div class="controls">
-            <splunk-search-dropdown name="action.risk.param._risk_object_type" id="risk_object_type"
+            <splunk-search-dropdown name="action.risk.param._insider_risk_object_type" id="risk_object_type"
                 search="| `risk_object_types`"
                 label-field="risk_object_type" value-field="risk_object_type" />
         </div>
@@ -26,7 +26,7 @@
         <div class="controls">
             <span class="help-block" style="display: block; position: static; width: auto; margin-left: 0;">
                 <a href="{{SPLUNKWEB_URL_PREFIX}}/help?location=%5BSplunkEnterpriseSecuritySuite:6.6.2%5Dess_risk_analysis" target="_blank"
-                   title="Splunk help">Learn more <i class="icon-external"></i></a> about risk modifiers.
+                   title="Splunk help">Learn more TO DO <i class="icon-external"></i></a> about risk modifiers.
             </span>
         </div>
     </div>
