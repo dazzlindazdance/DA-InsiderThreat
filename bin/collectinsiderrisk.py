@@ -47,9 +47,9 @@ class RiskModularAction(ModularAction):
         # add status info
         self.addinfo()
         # search_name
-        self.search_name = self.search_name or 'AdHoc Risk Score'
+        self.search_name = self.search_name or 'AdHoc Insider Risk Score'
         # _risk
-        self._risk = []
+        self._insider_risk = []
         self.threat_object_definitions = []
         # default risk score
         self.default_risk_score = 1.0
@@ -57,14 +57,14 @@ class RiskModularAction(ModularAction):
     def validate(self):
         if 'risk' in self.configuration:
             try:
-                config_risk = json.loads(self.configuration['risk'])
+                config_risk = json.loads(self.configuration['insider_risk'])
                 # verify config_risk is a list...
                 if isinstance(config_risk, list):
                     # of dicts...
                     self._risk = [x for x in config_risk if isinstance(x, dict)]
                     # log number of discarded entries
-                    if len(self._risk) != len(config_risk):
-                        discarded_count = len(config_risk) - len(self._risk)
+                    if len(self._insider_risk) != len(config_risk):
+                        discarded_count = len(config_risk) - len(self._insider_risk)
                         self.logger.warning('Discarded %s risk object definitions', discarded_count)
                 else:
                     self.logger.warning('Invalid specification for risk parameter (must be a list).  See alert_actions.conf.spec')
@@ -73,15 +73,15 @@ class RiskModularAction(ModularAction):
 
         # this creates a consistent fallback for discarded risk-json
         # and the specification of the risk_object_field/object_type/score triple
-        if not self._risk:
-            self._risk = [{
+        if not self._insider_risk:
+            self._insider_risk = [{
                 "risk_object_field": self.configuration.get('risk_object_field'),
                 "risk_object_type": self.configuration.get('risk_object_type'),
                 "risk_score": self.configuration.get('risk_score')
             }]
 
         # pull out threat objects
-        for risk_object_definition in self._risk:
+        for risk_object_definition in self._insider_risk:
             if 'threat_object_field' in risk_object_definition and 'threat_object_type' in risk_object_definition:
                 self.threat_object_definitions.append({
                     'threat_object_field': risk_object_definition['threat_object_field'],
@@ -118,7 +118,7 @@ class RiskModularAction(ModularAction):
         threat_objects, threat_object_types = self.get_threat_objects(result)
 
         # for each risk object definition
-        for risk_object_definition in self._risk:
+        for risk_object_definition in self._insider_risk:
             # risk object field
             if result.get('__mv_risk_object') or result.get('risk_object'):
                 self.logger.debug('Detected risk_object field in result; using.')
