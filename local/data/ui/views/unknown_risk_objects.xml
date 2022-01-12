@@ -1,0 +1,32 @@
+<dashboard>
+  <label>Unknown Risk Objects</label>
+  <row>
+    <panel>
+      <html>
+        <h2>Information</h2>
+        <p>This dashboard shows risk objects that could not be matched to a corresponding unique identifier in the Idenity information, it could be that a use case is recording risk modifiers against a machine account or group mailbox, but it could equally indicate incomplete identity information.</p>
+        <p>Any information in this dashboard relating to an actual person means that we are unable to tie all their personas back to a single identity for correlation and should be reviewed as it means some or all of their behaviour is not factored into the threshold calculations and Insider alerting.</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Unknown Risk Objects</title>
+      <table>
+        <search>
+          <query>index=it_risk | `get_identity4insiderevents(risk_object)`|`unique_identifier_extraction(risk_object)`|where isnull(risk_object_unique_identifier) | stats count AS "No. Risk Modifiers",sum(risk_score) AS "Total",sparkline(sum(risk_score)) AS "Risk Score" by risk_object | rename risk_object AS "Risk Object"</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>

@@ -1,7 +1,7 @@
 <dashboard>
   <label>Overview</label>
   <search id="insider_notable_statuses">
-    <earliest>-7d@h</earliest>
+    <earliest>-24h</earliest>
     <latest>now</latest>
     <query>`notable`| search security_domain=insider | stats count by status_label</query>
   </search>
@@ -10,24 +10,58 @@
       <title>New Insider Notables</title>
       <single>
         <search base="insider_notable_statuses">
-          <query>where status_label="New"|fields count</query>
+          <query>where status_label="New"|fields count|appendpipe [|stats count | where count=0]</query>
         </search>
+        <option name="drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <link target="_self">/app/DA-InsiderThreat/incident_review?domain=insider&amp;status=1</link>
+        </drilldown>
       </single>
     </panel>
     <panel>
       <title>In Progress Insider Notables</title>
       <single>
         <search base="insider_notable_statuses">
-          <query>where status_label="In Progress"|fields count</query>
+          <query>where status_label="In Progress"|fields count|appendpipe [|stats count | where count=0]</query>
         </search>
+        <option name="drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <link target="_self">/app/DA-InsiderThreat/incident_review?domain=insider&amp;status=2</link>
+        </drilldown>
       </single>
     </panel>
     <panel>
       <title>Closed Insider Notables</title>
       <single>
         <search base="insider_notable_statuses">
-          <query>where status_label="Closed"|fields count</query>
+          <query>where status_label="Closed"|fields count|appendpipe [|stats count | where count=0]</query>
         </search>
+        <option name="drilldown">all</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <link target="_self">/app/DA-InsiderThreat/incident_review?domain=insider&amp;status=5</link>
+        </drilldown>
+      </single>
+    </panel>
+    <panel>
+      <title>Unknown Risk Objects</title>
+      <single>
+        <search>
+          <query>index=it_risk | `get_identity4insiderevents(risk_object)`|`unique_identifier_extraction(risk_object)`|where isnull(risk_object_unique_identifier) | stats dc(risk_object) AS count|appendpipe [|stats count | where count=0]</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,70,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Unique Risk Object(s)</option>
+        <option name="useColors">1</option>
+        <drilldown>
+          <link target="_self">/app/DA-InsiderThreat/unknown_risk_objects</link>
+        </drilldown>
       </single>
     </panel>
   </row>
@@ -76,7 +110,7 @@
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
         <drilldown>
-          <link target="_blank">/app/DA-InsiderThreat/user_metrics?form.identity=$row.identity$</link>
+          <link target="_self">/app/DA-InsiderThreat/user_metrics?form.risk_object=$row.risk_object$</link>
         </drilldown>
       </chart>
     </panel>

@@ -4,9 +4,61 @@
   <collection label="Investigations">
     <view name="user_metrics"/>
   </collection>
+  
+  <collection label="Security Intelligence">
+    <view name="risk_analysis" />
+    <divider />
+    <view name="ess_sequence_list" />
+    <divider />
+
+    <!-- Protocol Dashboards and searches -->
+    <collection label="Protocol Intelligence">
+
+      <view name="email_activity" />
+      <view name="email_search" />
+
+    </collection>
+
+    <collection label="User Intelligence">
+    <view name="asset_investigator" />
+    <view name="identity_investigator" />
+    <divider />
+    <view name="access_anomalies" />
+    <view name="uba_anomalies" />
+    <view name="user_activity" />
+  </collection>
+
+  </collection>
+  
+  <collection label="Security Domains">
+    <collection label="Access">
+      <view name="access_center" />
+      <view name="access_tracker" />
+      <view name="access_search" />
+      <divider />
+      <view name="account_management" />
+      <view name="default_accounts" />
+    </collection>
+
+    <collection label="Network">
+
+      <view name="web_center" />
+      <view name="web_search" />
+    </collection>
+
+    <collection label="Identity">
+      <view name="asset_center" />
+      <divider />
+      <view name="identity_center" />
+      <divider />
+      <view name="session_center" />
+    </collection>
+  </collection>
   <view name="manual_risk_modification"/>
   <collection label="Audit and Review">
     <view name="risk_modification_review"/>
+    <divider />
+    <view name="unknown_risk_objects"/>
   </collection>
   <collection label="Splunk">
   <view name="search"/>
@@ -17,8 +69,11 @@
   </collection>
   <collection label="Configuration">
     <view name="current_thresholds_and_modifiers"/>
+    <divider />
     <collection label="Content">
-      <a href="ess_content_management?textFilter=insider">Insider Content Management</a>
+      <a href="/app/DA-InsiderThreat/ess_content_management?textFilter=insider">Insider Content Management</a>
+      <divider/>
+      <a href="/manager/DA-InsiderThreat/data/macros/unique_identifier_regex?action=edit">Unique Identifier Regex</a>
     </collection>
   </collection>
 </nav>
