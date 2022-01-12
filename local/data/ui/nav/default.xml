@@ -1,0 +1,24 @@
+<nav search_view="search">
+  <view name="insider_threat_overview" default='true'/>
+  <a href="incident_review?domain=insider">Incident Review</a>
+  <collection label="Investigations">
+    <view name="user_metrics"/>
+  </collection>
+  <view name="manual_risk_modification"/>
+  <collection label="Audit and Review">
+    <view name="risk_modification_review"/>
+  </collection>
+  <collection label="Splunk">
+  <view name="search"/>
+  <view name="datasets" />
+  <view name="reports" />
+  <view name="alerts" />
+  <view name="dashboards" />
+  </collection>
+  <collection label="Configuration">
+    <view name="current_thresholds_and_modifiers"/>
+    <collection label="Content">
+      <a href="ess_content_management?textFilter=insider">Insider Content Management</a>
+    </collection>
+  </collection>
+</nav>

@@ -2,7 +2,7 @@
 
 [views/insider_threat_overview]
 version = 8.2.2.1
-modtime = 1641552777.020583000
+modtime = 1641975709.069813000
 
 [views/manual_risk_modification]
 version = 8.2.2.1
@@ -28,8 +28,16 @@ modtime = 1641558867.786607000
 
 [nav/default]
 version = 8.2.2.1
-modtime = 1641559250.703663000
+modtime = 1641918884.808582000
 
 [workflow_actions/Insider%20-%20User%20Metrics]
 version = 8.2.2.1
 modtime = 1641559366.992229000
+
+[savedsearches/Insider%20-%20User%20Sending%20Emails%20to%20Probable%20Programatic%20Generated%20Domain%20-%20Rule]
+version = 8.2.2.1
+modtime = 1641907735.686536000
+
+[views/current_thresholds_and_modifiers]
+version = 8.2.2.1
+modtime = 1641917210.852212000

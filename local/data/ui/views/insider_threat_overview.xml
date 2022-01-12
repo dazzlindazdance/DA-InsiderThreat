@@ -1,0 +1,106 @@
+<dashboard>
+  <label>Overview</label>
+  <search id="insider_notable_statuses">
+    <earliest>-7d@h</earliest>
+    <latest>now</latest>
+    <query>`notable`| search security_domain=insider | stats count by status_label</query>
+  </search>
+  <row>
+    <panel>
+      <title>New Insider Notables</title>
+      <single>
+        <search base="insider_notable_statuses">
+          <query>where status_label="New"|fields count</query>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>In Progress Insider Notables</title>
+      <single>
+        <search base="insider_notable_statuses">
+          <query>where status_label="In Progress"|fields count</query>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>Closed Insider Notables</title>
+      <single>
+        <search base="insider_notable_statuses">
+          <query>where status_label="Closed"|fields count</query>
+        </search>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Score by User (Top 10 Current Scores, Last 7 Days)</title>
+      <chart>
+        <search>
+          <query>index=it_risk | `get_identity4insiderevents(risk_object)`|`unique_identifier_extraction(risk_object)`|chart sum(risk_score) AS risk_score by risk_object_unique_identifier|rename risk_object_unique_identifier AS risk_object | appendcols [|inputlookup notable_trigger_threshold ] | eventstats values(notable_trigger_threshold) AS notable_trigger_threshold | rename notable_trigger_threshold AS "Notable Creation Threshold"| sort - risk_score | head 10</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">"Notable Creation Threshold"</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="height">531</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <drilldown>
+          <link target="_blank">/app/DA-InsiderThreat/user_metrics?form.identity=$row.identity$</link>
+        </drilldown>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Open Notables</title>
+      <table>
+        <search>
+          <query>
+            <![CDATA[`notable`| search security_domain="insider" | stats values(status_group) AS status_group by risk_score,user,_time| table _time,status_group,user,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score",user AS User| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found",User="-","Risk Score"="-"| fields - count]]]>
+          </query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">true</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <link target="_blank">/app/DA-InsiderThreat/incident_review?search=user%3D$row.User$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</dashboard>
