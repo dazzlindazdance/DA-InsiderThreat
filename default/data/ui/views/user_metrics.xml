@@ -1,12 +1,12 @@
 <form>
   <label>User Metrics</label>
   <search id="base_search1">
-    <query>index=it_risk risk_object="$risk_object$" |  eval search_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,search_name)|stats count by search_name,risk_score,_time|addinfo</query>
+    <query>index=it_risk |  `get_identity4insiderevents(risk_object)`| search risk_object_identity="darren.dance"|eval search_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,search_name)|stats count by search_name,risk_score,_time|addinfo</query>
     <earliest>-7d@h</earliest>
     <latest>now</latest>
     <sampleRatio>1</sampleRatio>
   </search>
-  <fieldset submitButton="false">
+  <fieldset submitButton="false" autoRun="true">
     <input type="dropdown" token="risk_object" searchWhenChanged="true">
       <label>Identity</label>
       <fieldForLabel>risk_object</fieldForLabel>
@@ -40,22 +40,12 @@
         <option name="horseshoe_meter_app.horseshoe_meter.valueColor">#555</option>
       </viz>
     </panel>
-    <panel><table><search><query>|`identities`| search identity=$risk_object$ | table identity,first,last,nick,email,phone,priority,watchlist,startDate,endDate,bunit,managedBy</query></search></table></panel>
     <panel>
-      <title>Notables Generated in the Last year</title>
-      <chart>
+      <table>
         <search>
-          <query>`notable`| search security_domain="insider" risk_object="$risk_object$"| rex "risk_score=\"(?&lt;it_risk_score&gt;\d+)\""| stats values(status_group) AS status_group by risk_score,_time| table _time,status_group,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score"|xyseries _time,"Current Ticket Status","Risk Score"| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found","Risk Score"="-"| fields - count]</query>
-          <earliest>-365d@d</earliest>
-          <latest>now</latest>
-          <sampleRatio>1</sampleRatio>
+          <query>|`identities`| search identity=$risk_object$ | table identity,first,last,nick,email,phone,priority,watchlist,startDate,endDate,bunit,managedBy</query>
         </search>
-        <option name="charting.chart">column</option>
-        <option name="refresh.display">progressbar</option>
-        <drilldown>
-          <link target="_blank">/app/DA-InsiderThreat/incident_review?source=Identity%20-%20Insider%20Threat%20Risk%20Threshold%20Breached%20-%20Rule&amp;search=user%253D$risk_object$&amp;earliest=-365d&amp;latest=now</link>
-        </drilldown>
-      </chart>
+      </table>
     </panel>
   </row>
   <row>
@@ -115,6 +105,22 @@
         <option name="trellis.enabled">0</option>
         <option name="trellis.scales.shared">1</option>
         <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Notables Generated in the Last year</title>
+      <chart>
+        <search>
+          <query>`notable`| search security_domain="insider" risk_object="$risk_object$"| rex "risk_score=\"(?&lt;it_risk_score&gt;\d+)\""| stats values(status_group) AS status_group by risk_score,_time| table _time,status_group,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score"|xyseries _time,"Current Ticket Status","Risk Score"| appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found","Risk Score"="-"| fields - count]</query>
+          <earliest>-365d@d</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="refresh.display">progressbar</option>
+        <drilldown>
+          <link target="_blank">/app/DA-InsiderThreat/incident_review?source=Identity%20-%20Insider%20Threat%20Risk%20Threshold%20Breached%20-%20Rule&amp;search=user%253D$risk_object$&amp;earliest=-365d&amp;latest=now</link>
+        </drilldown>
       </chart>
     </panel>
   </row>
