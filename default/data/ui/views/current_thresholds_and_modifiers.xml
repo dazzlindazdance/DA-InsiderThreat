@@ -1,5 +1,6 @@
-<dashboard>
+<form>
   <label>Current Thresholds and Modifiers</label>
+  <fieldset submitButton="true"></fieldset>
   <row>
     <panel>
       <html>
@@ -12,6 +13,9 @@
   <row>
     <panel>
       <title>Notable Event Risk Trigger Threshold</title>
+      <input type="text" token="notable_trigger">
+        <label>Adjust Notable Trigger</label>
+      </input>
       <single>
         <search>
           <query>| inputlookup notable_trigger_threshold</query>
@@ -19,11 +23,15 @@
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">all</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <drilldown>
+          <link target="_self">/app/DA-InsiderThreat/modify_notable_trigger_threshold</link>
+        </drilldown>
       </single>
       <html>
         <p>
-          <center>Click Score to edit. (TODO)</center>
+          <center>Click Score to edit.</center>
         </p>
         <p>This is the cumultative risk score a user has to reach before a notable is generated.</p>
       </html>
@@ -37,11 +45,14 @@
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
-        <option name="drilldown">none</option>
+        <option name="drilldown">all</option>
+        <drilldown>
+          <link target="_self">/app/DA-InsiderThreat/modify_risk_degradation_score</link>
+        </drilldown>
       </single>
       <html>
         <p>
-          <center>Click Score to edit. (TODO)</center>
+          <center>Click Score to edit.</center>
         </p>
         <p>If no recent risk scrore increases have been triggered then this is the amount the risk score will be degraded on each execution of the score degradation background task.</p>
       </html>
@@ -80,4 +91,4 @@
       </html>
     </panel>
   </row>
-</dashboard>
+</form>
