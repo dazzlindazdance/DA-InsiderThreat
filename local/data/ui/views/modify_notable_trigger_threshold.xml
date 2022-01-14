@@ -1,0 +1,37 @@
+<form>
+  <label>Modify Notable Trigger Threshold</label>
+  <search>
+    <query>| stats count | eval notable_trigger_threshold="$notable_value$" | fields notable_trigger_threshold| outputlookup notable_trigger_threshold </query>
+    <done>
+      <set token="notable_trigger_threshold">$result.notable_trigger_threshold</set>
+    </done>
+  </search>
+  <fieldset submitButton="true"></fieldset>
+  <row>
+    <panel>
+      <title>Modify Notable Trigger Threshold</title>
+      <input type="text" token="notable_value">
+        <label>Desired Value</label>
+      </input>
+      <single>
+        <title>Current Value</title>
+        <search>
+          <query>| inputlookup notable_trigger_threshold</query>
+          <earliest>-60s</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single depends="$notable_value$">
+        <title>New Value Set</title>
+        <search depends="$notable_trigger_threshold$">
+          <query>| inputlookup notable_trigger_threshold ```$notable_value$```</query>
+        </search>
+      </single>
+    </panel>
+  </row>
+</form>

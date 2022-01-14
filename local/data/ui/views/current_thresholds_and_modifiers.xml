@@ -1,0 +1,94 @@
+<form>
+  <label>Current Thresholds and Modifiers</label>
+  <fieldset submitButton="true"></fieldset>
+  <row>
+    <panel>
+      <html>
+        <h2>What is this page telling me?</h2>
+        <p>This page is currently static, ideally i want it so that people can edit the values to tune the platform.</p>
+        <p>These are the current thresholds and modifiers that we are using, these are populated from various lookups under the hood.</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Notable Event Risk Trigger Threshold</title>
+      <input type="text" token="notable_trigger">
+        <label>Adjust Notable Trigger</label>
+      </input>
+      <single>
+        <search>
+          <query>| inputlookup notable_trigger_threshold</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <drilldown>
+          <link target="_self">/app/DA-InsiderThreat/modify_notable_trigger_threshold</link>
+        </drilldown>
+      </single>
+      <html>
+        <p>
+          <center>Click Score to edit.</center>
+        </p>
+        <p>This is the cumultative risk score a user has to reach before a notable is generated.</p>
+      </html>
+    </panel>
+    <panel>
+      <title>Risk Degradation Score</title>
+      <single>
+        <search>
+          <query>| inputlookup risk_degradation_score</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">all</option>
+        <drilldown>
+          <link target="_self">/app/DA-InsiderThreat/modify_risk_degradation_score</link>
+        </drilldown>
+      </single>
+      <html>
+        <p>
+          <center>Click Score to edit.</center>
+        </p>
+        <p>If no recent risk scrore increases have been triggered then this is the amount the risk score will be degraded on each execution of the score degradation background task.</p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Correlation Rule Risk Modifiers</title>
+      <table>
+        <search>
+          <query>| rest splunk_server=local /services/configs/conf-savedsearches | search action.insider_risk=1 | fields action.correlationsearch.label,action.correlationsearch.enabled,action.insider_risk.param._insider_risk_score | rename "action.correlationsearch.label" AS "Correlation Search","action.insider_risk.param._insider_risk_score" AS "Risk Score"|eval Status=if('action.correlationsearch.enabled'=="1","enabled","disabled")| table "Correlation Search","Status","Risk Score" | sort "Correlation Search"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Risk Score">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <drilldown>
+          <link target="_blank">/app/DA-InsiderThreat/correlation_search_edit?search=$row.Correlation Search$%20-%20Rule</link>
+        </drilldown>
+      </table>
+      <html>
+        <p>
+          <center>Nb. Click Row to Open Correlation Search editor and amend score.</center>
+        </p>
+      </html>
+    </panel>
+  </row>
+</form>

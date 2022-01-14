@@ -40,9 +40,21 @@ modtime = 1641907735.686536000
 
 [views/current_thresholds_and_modifiers]
 version = 8.2.2.1
-modtime = 1641993228.892277000
+modtime = 1642164989.047487000
 
 [views/unknown_risk_objects]
 owner = darrend
 version = 8.2.2.1
 modtime = 1641982737.772173000
+
+[views/modify_notable_trigger_threshold]
+owner = darrend
+version = 8.2.2.1
+modtime = 1642164584.574459000
+
+[views/modify_risk_degradation_score]
+access = read : [ * ], write : [ admin, power ]
+export = system
+owner = darrend
+version = 8.2.2.1
+modtime = 1642164761.870687000

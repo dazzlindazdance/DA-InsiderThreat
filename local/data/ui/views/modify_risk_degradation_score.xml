@@ -1,0 +1,37 @@
+<form>
+  <label>Modify Risk Degradation Score</label>
+  <search>
+    <query>| stats count | eval risk_degradation_score="$degradation_value$" | fields risk_degradation_score| outputlookup risk_degradation_score </query>
+    <done>
+      <set token="risk_degradation_score">$result.risk_degradation_score</set>
+    </done>
+  </search>
+  <fieldset submitButton="true"></fieldset>
+  <row>
+    <panel>
+      <title>Modify Risk Degradation Score</title>
+      <input type="text" token="degradation_value">
+        <label>Desired Value</label>
+      </input>
+      <single>
+        <title>Current Value</title>
+        <search>
+          <query>| inputlookup risk_degradation_score</query>
+          <earliest>-60s</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single depends="$degradation_value$">
+        <title>New Value Set</title>
+        <search depends="$risk_degradation_score$">
+          <query>| inputlookup risk_degradation_score ```$degradation_value$```</query>
+        </search>
+      </single>
+    </panel>
+  </row>
+</form>
