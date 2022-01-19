@@ -75,7 +75,7 @@
     <collection label="Content">
       <a href="/app/DA-InsiderThreat/ess_content_management?textFilter=insider">Insider Content Management</a>
       <divider/>
-      <a href="/manager/DA-InsiderThreat/data/macros/unique_identifier_regex?action=edit">Unique Identifier Regex</a>
+      <!--<a href="/manager/DA-InsiderThreat/data/macros/unique_identifier_regex?action=edit">Unique Identifier Regex</a>-->
     </collection>
   </collection>
 </nav>
