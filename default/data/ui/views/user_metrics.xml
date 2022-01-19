@@ -1,7 +1,7 @@
 <form>
   <label>User Metrics</label>
   <search id="base_search1">
-    <query>index=it_risk |  `get_identity4insiderevents(risk_object)`| search risk_object_identity="darren.dance"|eval search_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,search_name)|stats count by search_name,risk_score,_time|addinfo</query>
+    <query>index=it_risk |  `get_identity4insiderevents(risk_object)`|search risk_object_identity="$risk_object$"|eval search_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,search_name)|stats count by search_name,risk_score,_time</query>
     <earliest>-7d@h</earliest>
     <latest>now</latest>
     <sampleRatio>1</sampleRatio>
@@ -52,7 +52,7 @@
     <panel>
       <viz type="timeline_app.timeline">
         <search base="base_search1">
-          <query>| sort -_time |eval duration=60,severity="high"| table _time,search_name,severity,duration | makecontinuous span=1h | fillnull value=" " search_name|fillnull value="null" severity| appendpipe [|stats count | where count=0 | addinfo | rename info_min_time AS _time |table _time,search_name,severity,duration]</query>
+          <query>|eval duration=60,severity="high"| table _time,search_name,severity,duration | makecontinuous span=1h | fillnull value=" " search_name|fillnull value="null" severity| eventstats earliest(_time) AS earliest by severity | where (severity=="null" and _time=earliest) OR severity!="null" | fields - earliest| appendpipe [|stats count | where count=0 | addinfo | rename info_min_time AS _time |table _time,search_name,severity,duration]</query>
         </search>
         <option name="refresh.display">progressbar</option>
         <option name="timeline_app.timeline.axisTimeFormat">DAYS</option>
