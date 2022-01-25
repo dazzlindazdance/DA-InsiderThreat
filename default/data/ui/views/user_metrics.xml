@@ -23,7 +23,7 @@
       <viz type="horseshoe_meter_app.horseshoe_meter">
         <title>Current User Risk Score</title>
         <search base="base_search1">
-          <query> | stats sum(risk_score) AS "Current Score"</query>
+          <query> | stats sum(risk_score) AS "Current Score"| eval "Current Score"=if('Current Score'<0,0,'Current Score')</query>
         </search>
         <option name="drilldown">none</option>
         <option name="horseshoe_meter_app.horseshoe_meter.backgroundColor">#FFF</option>
