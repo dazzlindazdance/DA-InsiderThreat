@@ -2,7 +2,7 @@
   <label>User Metrics</label>
   <search id="base_search1">
     <query>index=it_risk |  `get_identity4insiderevents(risk_object)`|search risk_object_identity="$risk_object$"|eval search_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,search_name)|stats count by search_name,risk_score,_time</query>
-    <earliest>-7d@h</earliest>
+    <earliest>-7d</earliest>
     <latest>now</latest>
     <sampleRatio>1</sampleRatio>
   </search>
@@ -16,14 +16,17 @@
         <earliest>0</earliest>
         <latest></latest>
       </search>
+      <change>
+        <unset token="display_detail"></unset>
+      </change>
     </input>
   </fieldset>
   <row>
     <panel>
+      <title>Current User Risk Score</title>
       <viz type="horseshoe_meter_app.horseshoe_meter">
-        <title>Current User Risk Score</title>
         <search base="base_search1">
-          <query> | stats sum(risk_score) AS "Current Score"| eval "Current Score"=if('Current Score'<0,0,'Current Score')</query>
+          <query>| stats sum(risk_score) AS "Current Score"| eval "Current Score"=if('Current Score'&lt;0,0,'Current Score')</query>
         </search>
         <option name="drilldown">none</option>
         <option name="horseshoe_meter_app.horseshoe_meter.backgroundColor">#FFF</option>
@@ -38,9 +41,11 @@
         <option name="horseshoe_meter_app.horseshoe_meter.thresholdStyle">realValue</option>
         <option name="horseshoe_meter_app.horseshoe_meter.useRangemap">true</option>
         <option name="horseshoe_meter_app.horseshoe_meter.valueColor">#555</option>
+        <option name="refresh.display">progressbar</option>
       </viz>
     </panel>
     <panel>
+      <title>Identity Information Held</title>
       <table>
         <search>
           <query>|`identities`| search identity=$risk_object$ | table identity,first,last,nick,email,phone,priority,watchlist,startDate,endDate,bunit,managedBy</query>
@@ -50,9 +55,10 @@
   </row>
   <row>
     <panel>
+      <title>Timeline of Risk Events</title>
       <viz type="timeline_app.timeline">
         <search base="base_search1">
-          <query>|eval duration=60,severity="high"| table _time,search_name,severity,duration | makecontinuous span=1h | fillnull value=" " search_name|fillnull value="null" severity| eventstats earliest(_time) AS earliest by severity | where (severity=="null" and _time=earliest) OR severity!="null" | fields - earliest| appendpipe [|stats count | where count=0 | addinfo | rename info_min_time AS _time |table _time,search_name,severity,duration]</query>
+          <query>|eval duration=60,severity="high"| table _time,search_name,severity,duration | appendpipe [|stats count | where count=0 | addinfo | rename info_min_time AS _time |table _time,search_name,severity,duration]</query>
         </search>
         <option name="refresh.display">progressbar</option>
         <option name="timeline_app.timeline.axisTimeFormat">DAYS</option>
@@ -62,7 +68,24 @@
         <option name="timeline_app.timeline.numOfBins">6</option>
         <option name="timeline_app.timeline.tooltipTimeFormat">MINUTES</option>
         <option name="timeline_app.timeline.useColors">1</option>
+        <drilldown>
+          <set token="display_detail">true</set>
+        </drilldown>
       </viz>
+      <html>
+        <center>Click the chart content to expose detail.</center>
+      </html>
+      <table id="detail" depends="$display_detail$">
+        <search>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <query>index=it_risk |  `get_identity4insiderevents(risk_object)`|search risk_object_identity="$risk_object$"|eval search_name=case(source="Manual Risk Score Modification",source,source="Risk Score Degradation","Risk Score Reduction",1=1,search_name) | fields - count,annotations,info_max_time,info_min_time,risk_object_*,savedsearch_description,orig_sid,orig_rid,orig_action_name,linecount,host,source,sourcetype,splunk_server,splunk_server_group,src_user_*,timestamp,index| stats values(risk_score) AS risk_score,values(*) AS * by orig_time,risk_object,search_name | rename orig_time AS _time</query>
+        </search>
+        <format type="color" field="risk_score">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+      </table>
     </panel>
   </row>
   <row>
@@ -111,12 +134,13 @@
       <title>Notables Generated in the Last year</title>
       <chart>
         <search>
-          <query>``notable`| search security_domain="insider" risk_object="$risk_object$"| timechart span=1w count by status_label | appendpipe [| stats count | where count=0| eval status_label="none",_time=now()| xyseries _time,status_label,count]</query>
+          <query>`notable`| search security_domain="insider" risk_object="$risk_object$"| timechart span=1w count by status_label | appendpipe [| stats count | where count=0| eval status_label="none"]</query>
           <earliest>-365d@d</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
         </search>
         <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
         <option name="refresh.display">progressbar</option>
         <drilldown>
           <link target="_blank">/app/DA-InsiderThreat/incident_review?source=Identity%20-%20Insider%20Threat%20Risk%20Threshold%20Breached%20-%20Rule&amp;search=user%253D$risk_object$&amp;earliest=-365d&amp;latest=now</link>
