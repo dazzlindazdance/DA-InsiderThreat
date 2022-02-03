@@ -68,3 +68,6 @@ TO DO
 You may want to restrict users outside the Insider Threat team from accessing the `it_risk` index so that they can't see if they themselves are being investigated.
 
 ### Lookups to Manage
+
+## Support
+This addon is publicly available to download, install, and modify, it is a work in progress and is without warranty or support.
