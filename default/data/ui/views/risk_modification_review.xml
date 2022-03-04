@@ -57,7 +57,7 @@
       <title>Top Rules (Count)</title>
       <chart>
         <search>
-          <query>index=it_risk source!="Manual Risk Score Modification" source="Insider -*" | top source | rex field=source "^Insider\s-\s(?&lt;source&gt;.*)\s-\sRule$"</query>
+          <query>index=it_risk source!="Manual Risk Score Modification" source="*Rule" | top source | rex field=source "^\w*\s-\s(?&lt;source&gt;.*)\s-\sRule$"</query>
           <earliest>-30d@d</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
