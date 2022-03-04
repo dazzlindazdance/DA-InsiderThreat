@@ -120,15 +120,20 @@
       <title>Open Notables</title>
       <table>
         <search>
-          <query>
-            <![CDATA[`notable`| search security_domain="insider" | stats values(risk_search_source) as risk_search_source,values(status_group) AS status_group by risk_score,user,_time| table _time,risk_search_source,status_group,user,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score",user AS User,risk_search_source as "Source" | appendpipe [| stats count | where count=0 | eval "Current Ticket Status"="None Found",User="-","Risk Score"="-"| fields - count]]]>
-          </query>
+          <query>`notable`
+| search security_domain="insider"
+| stats values(risk_search_source) as risk_search_source,values(status_group) AS status_group by risk_score,user,_time
+| mvexpand risk_search_source
+| where NOT risk_search_source="Risk Score Degradation"
+| stats values(*) as "*" by risk_score,user,_time
+| table _time,risk_search_source,status_group,user,risk_score | rename status_group AS "Current Ticket Status",risk_score AS "Risk Score",user AS User,risk_search_source as "Source" 
+| appendpipe [ | stats count | where count=0 | eval "Current Ticket Status"="None Found",User="-","Risk Score"="-"| fields - count ]</query>
           <earliest>-24h</earliest>
           <latest>now</latest>
         </search>
         <option name="count">10</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
+        <option name="drilldown">row</option>
         <option name="rowNumbers">true</option>
         <option name="wrap">true</option>
         <drilldown>

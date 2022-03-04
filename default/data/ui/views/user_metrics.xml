@@ -100,7 +100,7 @@
       <title>Risk Scoring over Last 7 Days</title>
       <chart>
         <search base="base_search1">
-          <query>| replace * with tmp_* IN search_name |timechart span=1d sum(risk_score) by search_name|addtotals label=score tmp_* |rename tmp_* AS * |eventstats sum(Total) AS Total</query>
+          <query>| replace * with tmp_* IN search_name |timechart span=1d sum(risk_score) by search_name|addtotals label=score tmp_* |rename tmp_* AS * |eventstats sum(Total) AS Total | eval Total=if(Total&lt;0, 0, Total)</query>
         </search>
         <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
         <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
