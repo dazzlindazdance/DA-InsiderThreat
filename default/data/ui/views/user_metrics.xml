@@ -7,12 +7,19 @@
     <sampleRatio>1</sampleRatio>
   </search>
   <fieldset submitButton="false" autoRun="true">
+    <input type="text" token="search_risk_object" searchWhenChanged="true">
+      <label>Free identity text filter:</label>
+      <default>*</default>
+      <prefix>*</prefix>
+      <suffix>*</suffix>
+      <initialValue>*</initialValue>
+    </input>  
     <input type="dropdown" token="risk_object" searchWhenChanged="true">
       <label>Identity</label>
       <fieldForLabel>risk_object</fieldForLabel>
       <fieldForValue>risk_object</fieldForValue>
       <search>
-        <query>index=it_risk | stats values(risk_object) AS risk_object | mvexpand risk_object</query>
+        <query>index=it_risk risk_object="$search_risk_object$" | stats count by risk_object | sort limit=10000 risk_object | fields risk_object</query>
         <earliest>0</earliest>
         <latest></latest>
       </search>
