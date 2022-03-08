@@ -57,7 +57,7 @@
       <title>Top Rules (Count)</title>
       <chart>
         <search>
-          <query>index=it_risk |top savedsearch_name</query>
+          <query>index=it_risk source!="Manual Risk Score Modification" source="*Rule" | top source | rex field=source "^\w*\s-\s(?&lt;source&gt;.*)\s-\sRule$"</query>
           <earliest>-30d@d</earliest>
           <latest>now</latest>
           <sampleRatio>1</sampleRatio>
@@ -100,7 +100,12 @@
       <title>Manual Modifications</title>
       <table id="table1">
         <search>
-          <query>index=it_risk |stats values(reason) AS Reason,values(identity) AS "Affected User",values(risk_score) AS risk_score by modification_user,_time | table _time,modification_user,Reason,"Affected User",risk_score| sort -_time  | eval Direction=if(risk_score&gt;=0,"increase","reduction")| rename modification_user AS "Modification User",risk_score AS "Risk Score"</query>
+          <query>index=it_risk source="Manual Risk Score Modification"
+| stats values(reason) AS Reason,values(risk_object) AS "Affected User", values(risk_score) AS risk_score by modification_user, _time
+| table _time, modification_user, Reason, "Affected User", risk_score
+| sort - _time 
+| eval Direction=if(risk_score>=0, "increase", "reduction")
+| rename modification_user AS "Modification User", risk_score AS "Risk Score"</query>
           <earliest>-7d</earliest>
           <latest>now</latest>
         </search>
